@@ -3,7 +3,7 @@ import gradio as gr
 from .presets import PRESET_CHOICES
 from .logging import debug, log
 
-SECTION = ("compatibility", "Compatibility", "sd")
+SECTION = ("compatibility", "Compatibility")
 
 
 def option_exists(shared, name):
