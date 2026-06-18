@@ -1,5 +1,14 @@
+import sys
 from pathlib import Path
 import traceback
+
+# Forge Neo does not keep the extension root on sys.path after load, so importing
+# the sibling ``forge_neo_compat`` package fails with ModuleNotFoundError (seen in
+# the compat debugger logs). Make the package importable regardless of loader
+# behavior before importing anything from it.
+EXTENSION_ROOT = Path(__file__).resolve().parents[1]
+if str(EXTENSION_ROOT) not in sys.path:
+    sys.path.insert(0, str(EXTENSION_ROOT))
 
 from modules import shared, script_callbacks
 from modules.options import OptionInfo
@@ -9,7 +18,6 @@ from forge_neo_compat.options import compat_enabled, get_try_reproduce, option_e
 from forge_neo_compat.patch_manager import PATCH_RESULTS, install_all_patches
 from forge_neo_compat.presets import EXT_VERSION, load_presets
 
-EXTENSION_ROOT = Path(__file__).resolve().parents[1]
 PRESETS = load_presets(EXTENSION_ROOT, logger=log)
 
 
@@ -41,6 +49,11 @@ def register_options():
 def app_started_callback(*args, **kwargs):
     force = bool(getattr(shared.opts, "forge_neo_compat_force_patch_reinstall", False))
     install_all_patches(shared, PRESETS, force=force)
+    # Reconcile option state with the currently selected preset at startup so a
+    # saved selection behaves the same as if the user had just picked it. The
+    # native Forge Neo radio has no onchange, so without this the cascade only
+    # fires after the next manual change.
+    apply_preset()
     debug(shared, f"Extension version: {EXT_VERSION}")
     debug(shared, f"Current preset: {get_try_reproduce(shared)}")
     debug(shared, f"Patch report: {PATCH_RESULTS}")

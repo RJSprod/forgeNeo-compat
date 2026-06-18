@@ -37,6 +37,16 @@ Create `presets.json` in the extension root to override or extend built-in prese
 }
 ```
 
+## Forge Neo alignment
+
+Newer Forge Neo ships the `forge_try_reproduce` radio **natively**, but unlike old
+Forge it carries no `onchange` callback, so selecting a preset does not cascade to
+`randn_source` or the compatibility flags. This extension now detects the existing
+native option and chains its preset cascade onto it (instead of skipping because the
+option already exists), and re-applies the selected preset at app start. It also adds
+the extension root to `sys.path` so the `forge_neo_compat` package imports reliably
+under Forge Neo's loader.
+
 ## Compatibility notes
 
 Some behaviors depend on exact Forge Neo internals and are intentionally capability-based. If a stable adapter is not detected, the extension registers the option and logs a skipped patch rather than guessing destructively. The RNG and Karras sigma patches are implemented directly; prompt scheduling, alpha-bar downcast, hires-fix, and refiner hooks are left for native support or future adapters when stable targets are available.
