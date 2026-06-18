@@ -2,7 +2,7 @@ import copy
 import json
 from pathlib import Path
 
-EXT_VERSION = "0.1.0"
+EXT_VERSION = "0.2.0"
 
 PRESET_CHOICES = [
     "None",
